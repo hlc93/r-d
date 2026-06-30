@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>節奏練習 · Rhythm Sight Reading Drill</title>
+<style>
+  :root{
+    --paper:#FAF6EC;
+    --paper-edge:#F1EADA;
+    --ink:#1C1B19;
+    --staff:#2B2A28;
+    --accent:#8B5E3C;
+    --accent-soft:#E8D9C5;
+    --muted:#9C9485;
+    --line:#DDD4C2;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper-edge);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+    color:var(--ink);
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:18px 14px 30px;
+  }
+
+  .title-row{
+    width:100%;
+    max-width:1240px;
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    margin-bottom:14px;
+    padding:0 4px;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  h1{
+    font-family:Iowan Old Style, "Palatino Linotype", Georgia, "Noto Serif", serif;
+    font-weight:600;
+    font-size:24px;
+    letter-spacing:0.01em;
+    margin:0;
+    color:var(--ink);
+  }
+  h1 span{color:var(--accent); font-style:italic;}
+  .subtitle{
+    font-size:11.5px;
+    color:var(--muted);
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+  }
+
+  .panel{
+    width:100%;
+    max-width:1240px;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:16px 20px;
+    margin-bottom:14px;
+    box-shadow:0 1px 0 rgba(0,0,0,0.02);
+  }
+  .panel-section + .panel-section{
+    margin-top:16px;
+    padding-top:14px;
+    border-top:1px solid var(--line);
+  }
+
+  .control-grid{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:flex-end;
+    gap:18px 26px;
+  }
+  .control-group{
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+  }
+  .control-label{
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted);
+    font-weight:600;
+  }
+  .pill-row{
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+  }
+  .pill{
+    border:1px solid var(--line);
+    background:#fff;
+    color:var(--ink);
+    font-size:13px;
+    padding:6px 13px;
+    border-radius:20px;
+    cursor:pointer;
+    transition:background .15s, color .15s, border-color .15s, transform .1s;
+    user-select:none;
+    font-family:inherit;
+  }
+  .pill:hover{ border-color:var(--accent); }
+  .pill:active{ transform:scale(0.97); }
+  .pill.active{
+    background:var(--accent);
+    border-color:var(--accent);
+    color:#fff;
+  }
+
+  .range-control{
+    display:flex;
+    align-items:center;
+    gap:9px;
+  }
+  .range-control input[type="range"]{
+    width:140px;
+    accent-color:var(--accent);
+  }
+  .range-control .val{
+    font-size:12.5px;
+    color:var(--ink);
+    min-width:30px;
+    font-variant-numeric:tabular-nums;
+  }
+
+  .generate-btn{
+    background:var(--ink);
+    color:var(--paper);
+    border:none;
+    border-radius:10px;
+    padding:11px 24px;
+    font-size:14.5px;
+    font-weight:600;
+    letter-spacing:0.01em;
+    cursor:pointer;
+    transition:background .15s, transform .1s;
+    font-family:inherit;
+  }
+  .generate-btn:hover{ background:var(--accent); }
+  .generate-btn:active{ transform:scale(0.98); }
+
+  .sheet{
+    width:100%;
+    max-width:1240px;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:26px 22px 18px;
+  }
+  .system-row{
+    width:100%;
+    display:block;
+  }
+  .system-row svg{ display:block; width:100%; height:auto; }
+
+  .footer-note{
+    margin-top:18px;
+    font-size:11.5px;
+    color:var(--muted);
+    text-align:center;
+    max-width:620px;
+    line-height:1.6;
+  }
+
+  @media (max-width:700px){
+    h1{ font-size:20px; }
+    .control-grid{ gap:14px 18px; }
+    .panel{ padding:14px; }
+    .sheet{ padding:18px 10px 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="title-row">
+  <div>
+    <h1>節奏<span>練習</span></h1>
+    <div class="subtitle">Rhythm Sight Reading Drill</div>
+  </div>
+</div>
+
+<div class="panel">
+
+  <div class="panel-section">
+    <div class="control-grid">
+      <div class="control-group">
+        <div class="control-label">拍號 Time Signature（可多選，系統會隨機抽一種套用在每行）</div>
+        <div class="pill-row" id="timeSigGroup">
+          <button class="pill" data-num="2" data-den="4">2/4</button>
+          <button class="pill" data-num="3" data-den="4">3/4</button>
+          <button class="pill active" data-num="4" data-den="4">4/4</button>
+          <button class="pill" data-num="5" data-den="4">5/4</button>
+          <button class="pill" data-num="6" data-den="8">6/8</button>
+          <button class="pill" data-num="7" data-den="8">7/8</button>
+          <button class="pill" data-num="9" data-den="8">9/8</button>
+          <button class="pill" data-num="12" data-den="8">12/8</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <div class="control-label">音符細分（可多選，系統會隨機混合拼滿每拍，組合不一定工整）</div>
+        <div class="pill-row" id="subdivGroup">
+          <button class="pill active" data-sub="quarter">四分音符</button>
+          <button class="pill active" data-sub="eighth">八分音符</button>
+          <button class="pill" data-sub="sixteenth">十六分音符</button>
+          <button class="pill" data-sub="dotted_eighth">附點八分音符</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-section">
+    <div class="control-grid">
+      <div class="control-group">
+        <div class="control-label">休止符出現機率</div>
+        <div class="range-control">
+          <input type="range" id="restSlider" min="0" max="80" value="20">
+          <span class="val" id="restVal">20%</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <div class="control-label">每行小節數</div>
+        <div class="range-control">
+          <input type="range" id="measuresSlider" min="2" max="6" value="4">
+          <span class="val" id="measuresVal">4</span>
+        </div>
+      </div>
+
+      <div class="control-group" style="margin-left:auto;">
+        <button class="generate-btn" id="generateBtn">產生新練習 ↻</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="sheet" id="sheet"></div>
+
+<div class="footer-note">
+  純節奏視奏模式：單行節奏譜，不含音高，請直接打拍子／拍手／敲擊樂器跟著節奏唸讀。每次按「產生新練習」會重新生成全部 4 行。
+</div>
+
+<script>
+(function(){
+  // ---------- Core constants ----------
+  const LINE_Y = 80;            // the single rhythm line's y position within a system
+  const ROWS = 4;
+
+  // ---------- State ----------
+  let state = {
+    timeSigs: new Set(['4/4']),   // multi-select; one is randomly chosen PER ROW
+    subdivisions: new Set(['quarter','eighth']),
+    restProb: 0.20,
+    measuresPerRow: 4
+  };
+
+  const TIME_SIG_INFO = {
+    '2/4':{num:2,den:4}, '3/4':{num:3,den:4}, '4/4':{num:4,den:4}, '5/4':{num:5,den:4},
+    '6/8':{num:6,den:8}, '7/8':{num:7,den:8}, '9/8':{num:9,den:8}, '12/8':{num:12,den:8}
+  };
+
+  // ---------- Duration tokens allowed per subdivision toggle, in sixteenth-units ----------
+  // Used to build the per-beat random duration pool — NOT a fixed pattern library anymore;
+  // randomFillBeat() greedily picks from this pool until the beat is exactly filled, so
+  // combinations are irregular/varied (including a lone stray sixteenth) rather than a
+  // small set of curated, tidy patterns.
+  // ---------- Duration tokens contributed to the per-beat random pool by each toggle ----------
+  // randomFillBeat() draws from the UNION of tokens contributed by all active toggles
+  // until a beat is exactly filled — so combinations are free-form/irregular (including
+  // a lone stray sixteenth) rather than a small set of curated, tidy patterns. A dotted
+  // eighth (3 units) needs a 1-unit partner to complete most beats, so enabling it also
+  // makes a bare 1-unit sixteenth available even if the "sixteenth" toggle itself is off.
+  const DURATION_POOL = {
+    quarter: [4],
+    eighth: [2],
+    sixteenth: [1],
+    dotted_eighth: [3, 1],
+  };
+
+  // ---------- SVG helpers ----------
+  const NS = 'http://www.w3.org/2000/svg';
+  function el(tag, attrs){
+    const e = document.createElementNS(NS, tag);
+    for(const k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+
+  // ---------- Time signature glyph ----------
+  function drawTimeSignature(svg, x, lineY, numerator, denominator){
+    const top = el('text', {x:x, y:lineY-6, 'font-size':34, 'font-family':'Georgia, serif', fill:'var(--ink)', 'text-anchor':'middle', 'font-weight':'bold'});
+    top.textContent = numerator;
+    svg.appendChild(top);
+    const bottom = el('text', {x:x, y:lineY+34, 'font-size':34, 'font-family':'Georgia, serif', fill:'var(--ink)', 'text-anchor':'middle', 'font-weight':'bold'});
+    bottom.textContent = denominator;
+    svg.appendChild(bottom);
+  }
+
+  function drawSingleLine(svg, x1, x2, y){
+    svg.appendChild(el('line', {x1:x1, y1:y, x2:x2, y2:y, stroke:'var(--staff)', 'stroke-width':1.3}));
+  }
+
+  // ---------- Rest glyphs by duration (in sixteenth-units) ----------
+  function drawRest(svg, cx, lineY, units, dotted){
+    let glyph, fontSize, dy;
+    if(units>=16){ glyph='\u{1D13B}'; fontSize=30; dy=-16; }        // whole rest (hangs below 4th line, here just above)
+    else if(units>=8){ glyph='\u{1D13C}'; fontSize=30; dy=-2; }     // half rest
+    else if(units>=4){ glyph='\u{1D13D}'; fontSize=34; dy=8; }      // quarter rest
+    else if(units>=2){ glyph='\u{1D13E}'; fontSize=34; dy=8; }      // eighth rest
+    else { glyph='\u{1D13F}'; fontSize=34; dy=8; }                  // sixteenth rest
+    const t = el('text', {x:cx, y:lineY+dy, 'font-size':fontSize, 'text-anchor':'middle', fill:'var(--ink)', 'font-family':'Georgia, serif'});
+    t.textContent = glyph;
+    svg.appendChild(t);
+    if(dotted){
+      svg.appendChild(el('circle', {cx:cx+13, cy:lineY-3, r:2.2, fill:'var(--ink)'}));
+    }
+  }
+
+  // ---------- Notehead + stem + flags/beams ----------
+  // For a single note (not beamed), draws notehead + stem + flags appropriate to duration.
+  function drawSingleNote(svg, cx, lineY, units, isDotted){
+    const isHollow = units>=8; // half note or longer -> hollow head
+    const headAttrs = {
+      cx:cx, cy:lineY, rx:8.2, ry:6.1,
+      transform:`rotate(-18 ${cx} ${lineY})`,
+      fill: isHollow ? 'none' : 'var(--ink)',
+      stroke:'var(--ink)',
+      'stroke-width': isHollow ? 1.6 : 0
+    };
+    svg.appendChild(el('ellipse', headAttrs));
+
+    if(isDotted){
+      svg.appendChild(el('circle', {cx:cx+15, cy:lineY-3, r:2.2, fill:'var(--ink)'}));
+    }
+
+    if(units>=16) return; // whole note: no stem
+
+    const stemX = cx+7.6;
+    const stemTipY = lineY-46;
+    svg.appendChild(el('line', {x1:stemX, y1:lineY, x2:stemX, y2:stemTipY, stroke:'var(--ink)', 'stroke-width':1.6}));
+
+    // flags for unbeamed short notes (eighth=1 flag, sixteenth=2 flags)
+    let flagCount = 0;
+    if(units===2) flagCount = 1;
+    else if(units===1) flagCount = 2;
+    else if(units===3) flagCount = 1; // dotted-eighth, standalone (rare but possible)
+    for(let f=0; f<flagCount; f++){
+      const fy = stemTipY + f*9;
+      svg.appendChild(el('path', {d:`M${stemX},${fy} q13,5 12,22`, stroke:'var(--ink)', 'stroke-width':1.8, fill:'none'}));
+    }
+  }
+
+  // Draws a beamed group of short notes (eighths/sixteenths) sharing a single beam.
+  // notes: array of {cx, units, dotted} all with units < 4 (i.e. eighth or sixteenth, dotted-eighth=3 also beamable)
+  function drawBeamedGroup(svg, notes, lineY){
+    const stemTipY = lineY-46;
+    const stemXs = notes.map(n=>n.cx+7.6);
+    const STUB_LEN = 11; // length of a short secondary-beam stub when there's no same-level neighbor to connect to
+
+    // noteheads + stems
+    notes.forEach((n,i)=>{
+      svg.appendChild(el('ellipse', {cx:n.cx, cy:lineY, rx:8.2, ry:6.1, transform:`rotate(-18 ${n.cx} ${lineY})`, fill:'var(--ink)'}));
+      svg.appendChild(el('line', {x1:stemXs[i], y1:lineY, x2:stemXs[i], y2:stemTipY, stroke:'var(--ink)', 'stroke-width':1.6}));
+      if(n.dotted){
+        svg.appendChild(el('circle', {cx:n.cx+15, cy:lineY-3, r:2.2, fill:'var(--ink)'}));
+      }
+    });
+
+    // primary beam (always, connects all notes in the group)
+    svg.appendChild(el('line', {x1:stemXs[0], y1:stemTipY, x2:stemXs[stemXs.length-1], y2:stemTipY, stroke:'var(--ink)', 'stroke-width':4}));
+
+    // Secondary beam (the second, lower line that marks sixteenth-note duration).
+    // Standard engraving rule: a note needs a secondary beam segment on each side
+    // where its NEIGHBOR also subdivides at the sixteenth level (units===1) — in
+    // that case the two stems are connected by a full secondary beam. Where the
+    // neighbor does NOT subdivide that far (it's an eighth or dotted-eighth), the
+    // sixteenth note instead gets a short one-sided STUB pointing toward that
+    // neighbor, never a full beam reaching all the way to it.
+    const secondBeamY = stemTipY + 6;
+    for(let i=0;i<notes.length;i++){
+      if(notes[i].units!==1) continue; // only sixteenth-duration notes carry a secondary beam at all
+
+      const hasPrevSixteenth = i>0 && notes[i-1].units===1;
+      const hasNextSixteenth = i<notes.length-1 && notes[i+1].units===1;
+
+      if(hasPrevSixteenth || hasNextSixteenth){
+        // full connector(s) to same-level neighbor(s) — draw once per adjacent pair
+        // (only draw the i -> i+1 segment from the lower-indexed side to avoid duplicates)
+        if(hasNextSixteenth){
+          svg.appendChild(el('line', {x1:stemXs[i], y1:secondBeamY, x2:stemXs[i+1], y2:secondBeamY, stroke:'var(--ink)', 'stroke-width':4}));
+        }
+        if(hasPrevSixteenth && !hasNextSixteenth){
+          // already connected from the previous note's pass; nothing more to draw here
+        }
+        if(!hasPrevSixteenth && !hasNextSixteenth){
+          // unreachable (one of the two booleans is true in this branch) — no-op
+        }
+      } else {
+        // isolated sixteenth: short stub pointing toward whichever neighbor exists.
+        // If it has a previous note (of any duration), stub points LEFT (toward it).
+        // If it has a next note (of any duration), stub points RIGHT (toward it).
+        // A note can have neighbors on both sides (e.g. middle of 16-8-16): in that
+        // case standard practice is a stub on the side where the adjacent note is
+        // shorter/equal in the beat, but for our patterns (dotted-eighth+16th,
+        // 16th+dotted-eighth, 16-8-16) the correct side is simply: stub away from
+        // the coarser neighbor, i.e. toward the INSIDE of the beat group when this
+        // sixteenth sits at an edge, and we special-case the syncopated middle note
+        // (units===1 flanked by two units===1 with a units===2 between — not
+        // applicable here since this branch only runs when neither neighbor is a
+        // sixteenth) by checking which side has ANY neighbor at all.
+        const stubRight = i < notes.length-1; // prefer pointing toward the next note if one exists
+        const stubLeft = i > 0 && !stubRight;
+        if(stubRight){
+          svg.appendChild(el('line', {x1:stemXs[i], y1:secondBeamY, x2:stemXs[i]+STUB_LEN, y2:secondBeamY, stroke:'var(--ink)', 'stroke-width':4}));
+        } else if(stubLeft){
+          svg.appendChild(el('line', {x1:stemXs[i]-STUB_LEN, y1:secondBeamY, x2:stemXs[i], y2:secondBeamY, stroke:'var(--ink)', 'stroke-width':4}));
+        }
+      }
+    }
+  }
+
+  // ---------- Random free-form fill for a single beat ----------
+  // Greedily draws from the union of duration tokens contributed by all active
+  // subdivision toggles until the beat (unitsPerBeat sixteenth-units) is exactly
+  // filled. This naturally produces irregular combinations — including a lone stray
+  // sixteenth note — rather than a small curated set of tidy patterns.
+  function randomFillBeat(unitsPerBeat){
+    const pool = [];
+    state.subdivisions.forEach(key=>{
+      DURATION_POOL[key].forEach(d=>{ if(d<=unitsPerBeat) pool.push(d); });
+    });
+    const uniquePool = Array.from(new Set(pool));
+    // safety net: if nothing in the pool fits (shouldn't happen since "sixteenth"=1
+    // always fits any beat>=1), fall back to filling with bare sixteenths
+    const fillPool = uniquePool.length>0 ? uniquePool : [1];
+
+    let remaining = unitsPerBeat;
+    const tokens = [];
+    let guard = 0;
+    while(remaining > 0 && guard < 40){
+      guard++;
+      const fitting = fillPool.filter(d => d <= remaining);
+      if(fitting.length===0){ tokens.push(remaining); break; }
+      const choice = fitting[Math.floor(Math.random()*fitting.length)];
+      tokens.push(choice);
+      remaining -= choice;
+    }
+    return tokens;
+  }
+
+  // ---------- Build one measure ----------
+  // Normally fills the measure beat-by-beat (each beat independently random-filled).
+  // EXCEPTION: when "dotted_eighth" is selected but a lone dotted-eighth (3 units)
+  // cannot fit inside a single beat (i.e. unitsPerBeat < 3, true for all /8 meters
+  // where 1 beat = 1 eighth = 2 units), the dotted-eighth instead gets offered as a
+  // combined 2-BEAT slot (dotted-eighth + sixteenth, 3+1=4 units, spanning exactly
+  // 2 beats) so the rhythm can still appear — just visually crossing a beat tick,
+  // which is the standard/expected look for this duration in compound meters.
+  //
+  // Rest/note status is decided PER TOKEN (not per whole beat) — this is what lets a
+  // group like four sixteenths sometimes come out as note+rest+note+note, leaving a
+  // genuinely isolated single sixteenth note rather than always either all 4 notes
+  // (beamed as one block) or all 4 rests.
+  function buildMeasureEvents(beatsPerMeasure, unitsPerBeat){
+    const events = [];
+    const dottedNeedsTwoBeats = state.subdivisions.has('dotted_eighth') && unitsPerBeat < 3;
+
+    let b = 0;
+    while(b < beatsPerMeasure){
+      const canUseTwoBeatDotted = dottedNeedsTwoBeats && (b+2<=beatsPerMeasure);
+      if(canUseTwoBeatDotted && Math.random()<0.3){
+        const order = Math.random()<0.5 ? [3,1] : [1,3];
+        const isRest = order.map(()=>Math.random()<state.restProb);
+        events.push({type:'beat', tokens:order, isRest, beatSpan:2});
+        b += 2;
+        continue;
+      }
+      const tokens = randomFillBeat(unitsPerBeat);
+      const isRest = tokens.map(()=>Math.random()<state.restProb);
+      events.push({type:'beat', tokens, isRest, beatSpan:1});
+      b += 1;
+    }
+    return events;
+  }
+
+  // ---------- Layout: convert events into x-positioned drawables within a measure ----------
+  function layoutMeasure(events, measureX, measureWidth, totalUnits, unitsPerBeat){
+    const pxPerUnit = measureWidth / totalUnits;
+    let x = measureX;
+    const drawables = []; // {cx, units, isRest, dotted, beamGroupId}
+    let beamCounter = 0;
+
+    events.forEach(ev=>{
+      const beamThreshold = ev.beatSpan===2 ? unitsPerBeat*2 : unitsPerBeat;
+
+      // Determine beam groups as RUNS of consecutive non-rest, short-duration tokens.
+      // A rest always breaks a beam group (you can't beam across a rest), and any
+      // run of length 1 (a single short note with no beamable neighbor) gets no
+      // beamGroup at all — it's drawn as a standalone note with its own flag(s).
+      const groupIds = ev.tokens.map(()=>null);
+      let runStart = -1;
+      for(let i=0;i<=ev.tokens.length;i++){
+        const isBeamable = i<ev.tokens.length && !ev.isRest[i] && ev.tokens[i]<beamThreshold;
+        if(isBeamable){
+          if(runStart===-1) runStart = i;
+        } else {
+          if(runStart!==-1 && i-runStart>1){
+            const gid = 'g'+(beamCounter++);
+            for(let k=runStart;k<i;k++) groupIds[k] = gid;
+          }
+          runStart = -1;
+        }
+      }
+
+      ev.tokens.forEach((u,i)=>{
+        drawables.push({
+          cx:x, units:u, isRest:ev.isRest[i],
+          dotted: (u===3), // a 3-unit token within a beat is always a dotted eighth
+          beamGroup: groupIds[i]
+        });
+        x += u*pxPerUnit;
+      });
+    });
+    return drawables;
+  }
+
+  // ---------- Render a drawable list onto an svg at a given lineY ----------
+  function renderDrawables(svg, drawables, lineY){
+    // group by beamGroup
+    const beamGroups = {};
+    drawables.forEach(d=>{
+      if(d.beamGroup){
+        if(!beamGroups[d.beamGroup]) beamGroups[d.beamGroup] = [];
+        beamGroups[d.beamGroup].push(d);
+      }
+    });
+
+    const handledBeamGroups = new Set();
+
+    drawables.forEach(d=>{
+      if(d.isRest){
+        drawRest(svg, d.cx, lineY, d.units, d.dotted);
+        return;
+      }
+      if(d.beamGroup){
+        if(handledBeamGroups.has(d.beamGroup)) return; // already drawn as part of group
+        handledBeamGroups.add(d.beamGroup);
+        drawBeamedGroup(svg, beamGroups[d.beamGroup], lineY);
+        return;
+      }
+      drawSingleNote(svg, d.cx, lineY, d.units, d.dotted);
+    });
+  }
+
+  // ---------- Build one system (row): time signature (shown whenever it differs
+  // from the previous row, always shown on row 0) + N measures. Returns the
+  // signature label chosen for this row so the caller can track it for the next row. ----------
+  function buildSystem(container, prevSigLabel){
+    // pick one time signature at random from the multi-selected set for this row
+    const sigOptions = Array.from(state.timeSigs);
+    const sigLabel = sigOptions[Math.floor(Math.random()*sigOptions.length)];
+    const sig = TIME_SIG_INFO[sigLabel];
+    const beatsPerMeasure = sig.num;
+    const unitsPerBeat = sig.den===4 ? 4 : 2;
+    const showTimeSig = (prevSigLabel === null) || (sigLabel !== prevSigLabel);
+
+    const width = 1180;
+    const height = 160;
+    const svg = el('svg', {viewBox:`0 0 ${width} ${height}`, xmlns:NS});
+    svg.style.width='100%';
+    svg.style.height='auto';
+
+    const lineY = LINE_Y;
+    const leftMargin = showTimeSig ? 92 : 40;
+    const rightMargin = width-14;
+
+    drawSingleLine(svg, leftMargin-26, rightMargin, lineY);
+
+    if(showTimeSig){
+      drawTimeSignature(svg, 56, lineY, sig.num, sig.den);
+    }
+
+    const usableWidth = rightMargin - leftMargin;
+    const totalUnits = beatsPerMeasure * unitsPerBeat;
+    const effMeasuresPerRow = getSafeMeasuresPerRow(totalUnits, leftMargin);
+    const measureWidth = usableWidth / effMeasuresPerRow;
+    const contentWidth = measureWidth - MEASURE_INNER_PAD;
+
+    for(let m=0; m<effMeasuresPerRow; m++){
+      const measureX = leftMargin + m*measureWidth;
+      const contentX = measureX + MEASURE_INNER_PAD;
+
+      if(m>0){
+        svg.appendChild(el('line', {x1:measureX, y1:lineY-30, x2:measureX, y2:lineY+30, stroke:'var(--staff)', 'stroke-width':1.1}));
+      }
+
+      // beat tick marks + numbers, same visual-aid pattern as the pitch sight-reading tool
+      const beatWidth = contentWidth / beatsPerMeasure;
+      for(let b=0; b<beatsPerMeasure; b++){
+        const tickX = contentX + b*beatWidth;
+        svg.appendChild(el('line', {x1:tickX, y1:lineY+34, x2:tickX, y2:lineY+40, stroke:'var(--muted)', 'stroke-width':1, opacity:'0.5'}));
+        const tickLabel = el('text', {x:tickX, y:lineY+52, 'font-size':10, 'text-anchor':'middle', fill:'var(--muted)', opacity:'0.6'});
+        tickLabel.textContent = b+1;
+        svg.appendChild(tickLabel);
+      }
+
+      const events = buildMeasureEvents(beatsPerMeasure, unitsPerBeat);
+      const drawables = layoutMeasure(events, contentX, contentWidth, totalUnits, unitsPerBeat);
+      renderDrawables(svg, drawables, lineY);
+    }
+
+    svg.appendChild(el('line', {x1:rightMargin, y1:lineY-30, x2:rightMargin, y2:lineY+30, stroke:'var(--staff)', 'stroke-width':1.1}));
+
+    container.appendChild(svg);
+    return sigLabel;
+  }
+
+  // ---------- Render full sheet ----------
+  // When sixteenth-level subdivisions are in play, noteheads need more horizontal
+  // room per unit than the slider's raw measuresPerRow can safely give — so we clamp
+  // the EFFECTIVE measures-per-row down (notehead size never changes) and show more
+  // rows instead, to keep roughly the same amount of practice material per click.
+  // Computes how many measures can safely share one row without noteheads colliding,
+  // given how many sixteenth-units this particular measure (time signature) contains
+  // and what the finest active subdivision is. Works from real pixel math instead of a
+  // coarse lookup table, so it scales correctly across simple AND compound meters
+  // (e.g. 4/4 with sixteenths vs 12/8 with sixteenths need very different limits).
+  const SVG_WIDTH = 1180;
+  const RIGHT_MARGIN = SVG_WIDTH-14;
+  const MEASURE_INNER_PAD = 30;
+  const NOTEHEAD_DIAMETER = 16.4;
+  const MIN_COMFORTABLE_PX_PER_UNIT = NOTEHEAD_DIAMETER * 1.3;
+
+  function getSafeMeasuresPerRow(totalUnitsPerMeasure, leftMargin){
+    const minUnit = getMinUnitInUse();
+    const usableWidth = RIGHT_MARGIN - leftMargin;
+    for(let n=state.measuresPerRow; n>=1; n--){
+      const measureWidth = usableWidth/n;
+      const contentWidth = measureWidth - MEASURE_INNER_PAD;
+      const pxPerUnit = contentWidth / totalUnitsPerMeasure;
+      // only the FINEST subdivision in use needs the comfortable-spacing check;
+      // coarser durations (quarters/eighths) have plenty of room whenever the finest one does
+      if(pxPerUnit >= MIN_COMFORTABLE_PX_PER_UNIT || minUnit>=4) return n;
+    }
+    return 1;
+  }
+
+  function getMinUnitInUse(){
+    let minUnit = 4; // quarter, the coarsest possible
+    state.subdivisions.forEach(key=>{
+      DURATION_POOL[key].forEach(u=>{ if(u<minUnit) minUnit = u; });
+    });
+    return minUnit;
+  }
+
+  // Worst-case total-units across all currently-selected time signatures, used only
+  // to estimate how many rows are needed up front (each row still computes its own
+  // exact safe measures-per-row once its actual signature is chosen).
+  function getWorstCaseTotalUnits(){
+    let worst = 16; // 4/4 baseline
+    state.timeSigs.forEach(label=>{
+      const sig = TIME_SIG_INFO[label];
+      const unitsPerBeat = sig.den===4 ? 4 : 2;
+      const total = sig.num*unitsPerBeat;
+      if(total>worst) worst = total;
+    });
+    return worst;
+  }
+
+  function getEffectiveRows(){
+    const requestedTotal = ROWS * state.measuresPerRow; // how many measures the user "expects"
+    const worstLeftMargin = 92; // first row reserves space for the time signature glyph
+    const effPerRow = getSafeMeasuresPerRow(getWorstCaseTotalUnits(), worstLeftMargin);
+    return Math.max(ROWS, Math.ceil(requestedTotal / effPerRow));
+  }
+
+  function renderSheet(){
+    const sheet = document.getElementById('sheet');
+    sheet.innerHTML = '';
+    const effRows = getEffectiveRows();
+    let prevSigLabel = null;
+    for(let r=0; r<effRows; r++){
+      const rowWrap = document.createElement('div');
+      rowWrap.className = 'system-row';
+      rowWrap.style.marginBottom = '14px';
+      prevSigLabel = buildSystem(rowWrap, prevSigLabel);
+      sheet.appendChild(rowWrap);
+    }
+  }
+
+  // ---------- UI wiring ----------
+  function setupMultiSelect(groupId, stateSet, datasetKey, valueParser){
+    document.querySelectorAll('#'+groupId+' .pill').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const v = valueParser ? valueParser(btn.dataset[datasetKey]) : btn.dataset[datasetKey];
+        if(stateSet.has(v)){
+          if(stateSet.size>1){ stateSet.delete(v); btn.classList.remove('active'); }
+        } else {
+          stateSet.add(v); btn.classList.add('active');
+        }
+      });
+    });
+  }
+
+  // ---------- multi-select: time signature pills ----------
+  document.querySelectorAll('#timeSigGroup .pill').forEach(btn=>{
+    const sigLabel = btn.dataset.num + '/' + btn.dataset.den;
+    btn.addEventListener('click', ()=>{
+      if(state.timeSigs.has(sigLabel)){
+        if(state.timeSigs.size>1){ state.timeSigs.delete(sigLabel); btn.classList.remove('active'); }
+      } else {
+        state.timeSigs.add(sigLabel); btn.classList.add('active');
+      }
+    });
+  });
+
+  setupMultiSelect('subdivGroup', state.subdivisions, 'sub');
+
+  const restSlider = document.getElementById('restSlider');
+  const restVal = document.getElementById('restVal');
+  restSlider.addEventListener('input', ()=>{
+    state.restProb = parseInt(restSlider.value,10)/100;
+    restVal.textContent = restSlider.value + '%';
+  });
+
+  const measuresSlider = document.getElementById('measuresSlider');
+  const measuresVal = document.getElementById('measuresVal');
+  measuresSlider.addEventListener('input', ()=>{
+    state.measuresPerRow = parseInt(measuresSlider.value,10);
+    measuresVal.textContent = measuresSlider.value;
+  });
+
+  document.getElementById('generateBtn').addEventListener('click', renderSheet);
+
+  renderSheet();
+})();
+</script>
+</body>
+</html>
